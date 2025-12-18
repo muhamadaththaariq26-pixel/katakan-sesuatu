@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesan Masuk • Toriq</title>
+
+<style>
+*{
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    display:flex;
+    justify-content:center;
+    padding:20px;
+    color:#fff;
+}
+
+.container{
+    width:100%;
+    max-width:800px;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:20px;
+    animation: fadeDown 1s ease;
+}
+
+@keyframes fadeDown{
+    from{opacity:0; transform:translateY(-20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.header h2{
+    margin:0;
+}
+
+.header p{
+    opacity:0.8;
+    font-size:14px;
+}
+
+.list{
+    display:grid;
+    gap:15px;
+}
+
+.card{
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    padding:15px 20px;
+    border-radius:16px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.card .nama{
+    font-weight:bold;
+    font-size:16px;
+}
+
+.card .waktu{
+    font-size:12px;
+    opacity:0.7;
+    margin-bottom:8px;
+}
+
+.card .pesan{
+    white-space:pre-wrap;
+    line-height:1.5;
+}
+
+.kosong{
+    text-align:center;
+    opacity:0.7;
+    margin-top:40px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>📩 Pesan Masuk</h2>
+        <p>Semua pesan untuk Toriq</p>
+    </div>
+
+    <div id="list" class="list"></div>
+    <div id="kosong" class="kosong" style="display:none;">
+        Belum ada pesan masuk.
+    </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY_KAMU",
+  authDomain: "PASTE_AUTHDOMAIN",
+  projectId: "PASTE_PROJECTID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const list = document.getElementById("list");
+const kosong = document.getElementById("kosong");
+
+db.collection("pesan")
+  .orderBy("waktu", "desc")
+  .onSnapshot(snapshot=>{
+    list.innerHTML = "";
+
+    if(snapshot.empty){
+        kosong.style.display = "block";
+        return;
+    }
+
+    kosong.style.display = "none";
+
+    snapshot.forEach(doc=>{
+        const p = doc.data();
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <div class="nama">👤 ${p.nama}</div>
+            <div class="waktu">🕒 ${p.waktu.toDate().toLocaleString()}</div>
+            <div class="pesan">${p.pesan}</div>
+        `;
+
+        list.appendChild(card);
+    });
+});
+</script>
+
+</body>
+</html>
